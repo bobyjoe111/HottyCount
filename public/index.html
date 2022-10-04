@@ -1,0 +1,120 @@
+<html>
+	<head>
+		<style>
+
+			item {
+				position: absolute;
+				width: 50vw;
+			}
+			
+			div {
+				margin: 30px;
+				left-margin: 10%;
+				padding: 20px;
+				padding-top: 5px;
+				padding-bottom: 5px;
+				border: 2px solid black;
+				border-radius: 5000px;
+				width: 70%;
+				font-size: 1.25em;
+				text-align: left;
+			}
+
+			div span {
+				font-size: 0.5em;	
+				margin-left: 20px;
+			}
+
+			#leaderboard {
+				top: 0px;
+				left: 0px;
+			}
+
+			#voteBoard {
+				left: 50vw;
+				text-align: center;
+				width: 50vw;
+				align-items: center;
+				justify-content: center;
+			}
+			
+			input, button {
+				margin: 20px;
+				padding: 20px;
+				padding-top: 5px;
+				padding-bottom: 5px;
+				border: 2px solid black;
+				border-radius: 5000px;
+				-webkit-box-sizing: border-box; 
+    		-moz-box-sizing: border-box;
+    		box-sizing: border-box;
+				transform: translateY(22vh);
+				background-color: transparent;
+			}
+
+			h2 {
+				transform: translateY(19vh);
+				font-size: 3em;
+			}
+
+			#name {
+				font-size: 1.25em;
+				height: 80px;
+				width: 70%;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<item id='leaderboard'>
+			<div id='one'><h3>Name <span>2.5</span></h3></div>
+			<div id='two'><h3>Name <span>2.5</span></h3></div>
+			<div id='three'><h3>Name <span>2.5</span></h3></div>
+			<div id='four'><h3>Name <span>2.5</span></h3></div>
+			<div id='five'><h3>Name <span>2.5</span></h3></div>
+		</item>
+
+		<item id='voteBoard'>
+			<h2>Welcome to VoteMe!<p style='font-size: 0.5em;'>Rate everybody 1-5</p></h2>
+			<input id='name'><br>
+			<input id='score' placeholder='1-5' type='number' min='0' max='5'>
+			<button id='submit'>Submit</button>
+		</item>
+		
+		<script>
+			function grab(id) {return document.getElementById(id);}
+			
+			var one = grab('one');
+			var two = grab('two');
+			var three = grab('three');
+			var four = grab('four');
+			var five = grab('five');
+			var name = grab('name');
+			var score = grab('score');
+			var submit = grab('submit');
+
+			async function topFive() {
+				var options = {
+					method: 'POST',
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({})
+				};
+				var response = await fetch('/topFive', options);
+				var data = await response.json();
+				one.children[0].innerHTML = data.first.name + '<span>' + data.first.score + '</span>';
+				two.children[0].innerHTML = data.second.name + '<span>' + data.second.score + '</span>';
+				three.children[0].innerHTML = data.third.name + '<span>' + data.third.score + '</span>';
+				four.children[0].innerHTML = data.fourth.name + '<span>' + data.fourth.score + '</span>';
+				five.children[0].innerHTML = data.fifth.name + '<span>' + data.fifth.score + '</span>';
+			}
+
+			
+			topFive();
+			window.setInterval(topFive, 2000);
+			
+			
+		</script>
+	</body>
+</html>
