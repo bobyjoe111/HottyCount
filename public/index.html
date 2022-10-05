@@ -52,12 +52,16 @@
 				background-color: transparent;
 			}
 
+			h1 {
+				margin: 40px;
+			}
+
 			h2 {
 				transform: translateY(19vh);
 				font-size: 3em;
 			}
 
-			#name {
+			#person {
 				font-size: 1.25em;
 				height: 80px;
 				width: 70%;
@@ -67,6 +71,7 @@
 	</head>
 	<body>
 		<item id='leaderboard'>
+			<h1>Top 5 Hottest People:</h1>
 			<div id='one'><h3>Name <span>2.5</span></h3></div>
 			<div id='two'><h3>Name <span>2.5</span></h3></div>
 			<div id='three'><h3>Name <span>2.5</span></h3></div>
@@ -76,23 +81,55 @@
 
 		<item id='voteBoard'>
 			<h2>Welcome to VoteMe!<p style='font-size: 0.5em;'>Rate everybody 1-5</p></h2>
-			<input id='name'><br>
+			<input id='person'><br>
 			<input id='score' placeholder='1-5' type='number' min='0' max='5'>
 			<button id='submit'>Submit</button>
 		</item>
 		
 		<script>
 			function grab(id) {return document.getElementById(id);}
+			function Timer(name) {
+				this.name = name;
+				this.timer = 150;
+			}
+			var timers = [];
 			
 			var one = grab('one');
 			var two = grab('two');
 			var three = grab('three');
 			var four = grab('four');
 			var five = grab('five');
-			var name = grab('name');
+			var person = grab('person');
 			var score = grab('score');
 			var submit = grab('submit');
 
+			async function vote(n, score) {
+				console.log(n);
+				for (var i in timers) {
+					if (timers[i].name === n) {
+						alert('Every time you vote for someone they get a five minute cooldown before you can vote for them again.');
+						return;
+					}
+				}
+
+				var options = {
+					method: 'POST',
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						name: n,
+						score: score
+					})
+				};
+				
+				var response = await fetch('/rate', options);
+				var data = await response.json();
+				if (data.success === true) {
+					timers.push(new Timer(n));
+				}
+				
+			}
 			async function topFive() {
 				var options = {
 					method: 'POST',
@@ -103,16 +140,31 @@
 				};
 				var response = await fetch('/topFive', options);
 				var data = await response.json();
-				one.children[0].innerHTML = data.first.name + '<span>' + data.first.score + '</span>';
-				two.children[0].innerHTML = data.second.name + '<span>' + data.second.score + '</span>';
-				three.children[0].innerHTML = data.third.name + '<span>' + data.third.score + '</span>';
-				four.children[0].innerHTML = data.fourth.name + '<span>' + data.fourth.score + '</span>';
-				five.children[0].innerHTML = data.fifth.name + '<span>' + data.fifth.score + '</span>';
+				one.children[0].innerHTML = data.first.name + '<span>' + (data.first.score/data.first.count) + '</span>';
+				two.children[0].innerHTML = data.second.name + '<span>' + (data.second.score/data.second.count) + '</span>';
+				three.children[0].innerHTML = data.third.name + '<span>' + (data.third.score/data.third.count) + '</span>';
+				four.children[0].innerHTML = data.fourth.name + '<span>' + (data.fourth.score/data.fourth.count) + '</span>';
+				five.children[0].innerHTML = data.fifth.name + '<span>' + (data.fifth.score/data.fifth.count) + '</span>';
 			}
 
+			submit.addEventListener('click', function() {
+				var s = parseFloat(score.value);
+				if (s < 0) {s = 0;}
+				if (s > 5) {s = 5;}
+				vote(person.value, s);
+			});
 			
 			topFive();
-			window.setInterval(topFive, 2000);
+			window.setInterval(function() {
+				topFive();
+				for (var i = timers.length - 1; i >= 0; i--) {
+					timers[i].count--;
+					if (timers[i].count <= 0) {
+						timers.splice(i, 1);
+					}
+					
+				}
+			}, 2000);
 			
 			
 		</script>

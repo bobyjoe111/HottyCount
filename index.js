@@ -38,8 +38,7 @@ app.post('/rate', function(req, res) {
 });
 
 app.post('/topFive', function (req, res) {
-	var data = req.body;
-	people.sort(function(a, b) {return b.score/b.count - a.score/a.count});
+	people.sort(function(a, b) {return b.score/b.count - a.score/a.count}); 
 	res.send({
 		first: people[0],
 		second: people[1],
