@@ -1,10 +1,12 @@
 const express = require("express");
+var LocalStorage = require('node-localstorage').LocalStorage,
+localStorage = new LocalStorage('./scratch');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(express.json());
 
-var people = [];
+var people = JSON.parse(localStorage.getItem('people')) || [];
 
 function addPerson(name) {
 	people.push({name: name, score: 2.5, count: 1});
@@ -35,6 +37,7 @@ app.post('/rate', function(req, res) {
 		return;
 	}
 	res.send({success: false});
+	localStorage.setItem('people', JSON.stringify(people));
 });
 
 app.post('/topFive', function (req, res) {
