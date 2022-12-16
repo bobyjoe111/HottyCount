@@ -4,7 +4,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(express.json());
 
-var people = [];
+var people = process.env.people;
 
 function addPerson(name) {
 	people.push({name: name, score: 2.5, count: 1});
